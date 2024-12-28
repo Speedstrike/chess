@@ -1,14 +1,14 @@
 import pygame
 
-from src.classes.piece import Piece
+from piece import Piece
 
 class King(Piece):
     def __init__(self, pos, isWhite, board):
         super().__init__(pos, isWhite, board)
         if self.isWhite:
-            self.img = pygame.image.load('src/imgs/w_king.png')
+            self.img = pygame.image.load('imgs/w_king.png')
         else:
-            self.img = pygame.image.load('src/imgs/b_king.png')
+            self.img = pygame.image.load('imgs/b_king.png')
         self.img = pygame.transform.scale(self.img, (board.tile_width / 2, board.tile_height / 2))
         
     def get_available_moves(self, board):

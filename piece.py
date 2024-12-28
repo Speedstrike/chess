@@ -1,6 +1,3 @@
-def can_move(new_square):
-    return new_square.occupying_piece is None
-
 class Piece:
     def __init__(self, pos, isWhite, board):
         self.pos = pos
@@ -21,6 +18,9 @@ class Piece:
     def capture(self, new_square):
         new_square.occupying_piece = None
         self.move(new_square)
+
+    def can_move(self, new_square):
+        return new_square.occupying_piece is None
 
     # Checks if the piece can capture a different piece on a different square
     def can_capture(self, new_square):

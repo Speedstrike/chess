@@ -1,12 +1,13 @@
 import pygame
 
-from src.classes.square import Square
-from src.classes.pieces.bishop import Bishop
-from src.classes.pieces.king import King
-from src.classes.pieces.knight import Knight
-from src.classes.pieces.pawn import Pawn
-from src.classes.pieces.queen import Queen
-from src.classes.pieces.rook import Rook
+from square import Square
+
+from pieces.bishop import Bishop
+from pieces.king import King
+from pieces.knight import Knight
+from pieces.pawn import Pawn
+from pieces.queen import Queen
+from pieces.rook import Rook
 
 
 def highlight_square(square):

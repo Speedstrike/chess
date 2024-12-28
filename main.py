@@ -1,6 +1,6 @@
 import pygame
 
-from classes.board import Board
+from board import Board
 
 pygame.init()
 
