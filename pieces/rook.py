@@ -10,6 +10,7 @@ class Rook(Piece):
         else:
             self.img = pygame.image.load('imgs/b_rook.png')
         self.img = pygame.transform.scale(self.img, (board.tile_width / 2, board.tile_height / 2))
+        self.has_moved = False
         
     def get_available_moves(self, board):
         available_moves = []

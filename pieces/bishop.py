@@ -3,8 +3,8 @@ import pygame
 from piece import Piece
 
 class Bishop(Piece):
-    def __init__(self, pos, isWhite, board):
-        super().__init__(pos, isWhite, board)
+    def __init__(self, pos, is_white, board):
+        super().__init__(pos, is_white, board)
         if self.isWhite:
             self.img = pygame.image.load('imgs/w_bishop.png')
         else:
@@ -19,8 +19,8 @@ class Bishop(Piece):
         for n in range(1, 8):
             if current_x + n < 8 and current_y - n > -1:
                 topright_diagonal = board.get_square((current_x + n, current_y - n))
-                if topright_diagonal.occupying_piece != None:
-                    if(topright_diagonal.occupying_piece.color != self.color): available_moves.append(topright_diagonal)     
+                if topright_diagonal.occupying_piece is not None:
+                    if topright_diagonal.occupying_piece.color != self.color: available_moves.append(topright_diagonal)
                     break
                 else: available_moves.append(topright_diagonal)
                 

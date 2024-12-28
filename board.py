@@ -1,4 +1,5 @@
 import pygame
+from pygame import display
 
 from square import Square
 
@@ -27,11 +28,10 @@ class Board:
         self.tile_width = self.WIDTH // 8
         self.tile_height = self.HEIGHT // 8
         self.white_turn = True
-        self.current_color = 'white'
         self.first_click_occurred = False
         self.successful_move = False
         self.squares = [[Square(x, y) for y in range(8)] for x in range(8)]
-        self.previous_square = None
+        self.original_square = None
         self.config = [
             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
             ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
@@ -64,7 +64,7 @@ class Board:
     def get_king_square(self, color):
         for row in self.squares:
             for square in row:
-                if isinstance(square.occupying_piece, King) and square.occupying_piece.isWhite == (color == 'white'):
+                if isinstance(square.occupying_piece, King) and square.occupying_piece.isWhite is (color is True):
                     return square
         return None
 
@@ -73,53 +73,63 @@ class Board:
             for square in row:
                 if square.isSelected: square.isSelected = False
                 elif square.isHighlighted: square.isHighlighted = False
-                if not (square.occupying_piece and isinstance(square.occupying_piece, King) and self.is_in_check(self.current_color)):
+                if not (square.occupying_piece and isinstance(square.occupying_piece, King) and self.is_in_check(self.white_turn)):
                     square.isInCheck = False
 
-    def handle_click(self, mx, my):
+    def handle_click(self, mx, my, screen):
         x, y = mx // self.tile_width, my // self.tile_height
         selected_square = self.get_square((x, y))
-        if(((self.is_in_check(self.current_color) and isinstance(selected_square.occupying_piece, King))
-            or (not self.is_in_check(self.current_color) and selected_square.occupying_piece is not None))
-                and ((self.white_turn and selected_square.occupying_piece.isWhite)
-                     or (not self.white_turn and not selected_square.occupying_piece.isWhite))):
+        if(((self.is_in_check(self.white_turn) and isinstance(selected_square.occupying_piece, King))
+            or (not self.is_in_check(self.white_turn) and selected_square.occupying_piece is not None))
+            and ((self.white_turn and selected_square.occupying_piece.isWhite)
+            or (not self.white_turn and not selected_square.occupying_piece.isWhite))):
             self.handle_first_click(selected_square)
-            self.previous_square = selected_square
+            self.original_square = selected_square
             self.first_click_occurred = True
-        if(self.first_click_occurred and (selected_square.occupying_piece is None
-                                          or (self.previous_square.occupying_piece.color != selected_square.occupying_piece.color))):
-            self.handle_second_click(selected_square)
+
+        if self.first_click_occurred and (selected_square.occupying_piece is None or (self.original_square.occupying_piece.color != selected_square.occupying_piece.color)):
+            self.handle_second_click(selected_square, screen)
             self.clear_highlights()
             self.first_click_occurred = False
 
     # Handle first click (select a piece of one's color)
     def handle_first_click(self, selected_square):
         self.clear_highlights()
+        self.original_square = selected_square
 
         # highlight square and show available moves
-        if not self.is_in_check(self.current_color):
+        if not self.is_in_check(self.white_turn):
             select_square(selected_square)
         for square in selected_square.occupying_piece.get_available_moves(self):
             highlight_square(square)
 
     # Handle second click (moving/capturing a piece)
-    def handle_second_click(self, selected_square):
-        for square in self.previous_square.occupying_piece.get_available_moves(self):
+    def handle_second_click(self, selected_square, screen):
+        for square in self.original_square.occupying_piece.get_available_moves(self):
             if selected_square == square:
                 if selected_square.occupying_piece is None:
-                    self.previous_square.occupying_piece.move(selected_square)
+                    self.original_square.occupying_piece.move(selected_square)
                     self.successful_move = True
-                elif selected_square.occupying_piece.color != self.previous_square.occupying_piece.color:
-                    self.previous_square.occupying_piece.capture(selected_square)
+
+                    if isinstance(self.original_square.occupying_piece, King) or isinstance(self.original_square.occupying_piece, Rook):
+                        self.original_square.occupying_piece.has_moved = True
+                    if (isinstance(self.original_square.occupying_piece, Pawn) and self.original_square.occupying_piece.isWhite and selected_square.y == 0) or (isinstance(self.original_square.occupying_piece, Pawn) and (not self.original_square.occupying_piece.isWhite) and selected_square.y == 7):
+                        self.promote_pawn(selected_square, screen)
+                elif selected_square.occupying_piece.color != self.original_square.occupying_piece.color:
+                    self.original_square.occupying_piece.capture(selected_square)
                     self.successful_move = True
+
+                    if isinstance(self.original_square.occupying_piece, King) or isinstance(self.original_square.occupying_piece, Rook):
+                        self.original_square.occupying_piece.has_moved = True
+                    if (isinstance(self.original_square.occupying_piece, Pawn) and self.original_square.occupying_piece.isWhite and selected_square.y == 0) or (isinstance(self.original_square.occupying_piece, Pawn) and (not self.original_square.occupying_piece.isWhite) and selected_square.y == 7):
+                        self.promote_pawn(selected_square, screen)
+
                 if self.successful_move:
-                    self.previous_square.occupying_piece = None
-                    self.previous_square = None
+                    self.original_square.occupying_piece = None
+                    self.original_square = None
                     self.white_turn = not self.white_turn
-                    self.current_color = 'white' if self.white_turn else 'black'
-                    if self.is_in_check(self.current_color):
-                        print(f'{self.current_color.capitalize()} king is in check!', )
-                        highlight_king(self.get_king_square(self.current_color), True)
+                    if self.is_in_check(self.white_turn):
+                        highlight_king(self.get_king_square(self.white_turn), True)
                     self.successful_move = False
 
     def draw_board(self, display):
@@ -127,7 +137,7 @@ class Board:
             for square in row:
                 square.draw(display)
 
-    def is_in_check(self, color, new_square=None):
+    def is_in_check(self, color, new_square = None):
         king_square = self.get_king_square(color)
         if king_square is None:
             pygame.quit()
@@ -142,7 +152,7 @@ class Board:
                         return True
         else:
             for piece in self.get_pieces_on_board():
-                if piece.isWhite != (color == 'white'):
+                if piece.isWhite != color:
                     available_moves = piece.get_available_moves(self)
                     if king_square in available_moves:
                         return True
@@ -153,39 +163,79 @@ class Board:
             for x, piece in enumerate(row):
                 if piece != '':
                     square = self.get_square((x, y))
-                    if piece[1] == 'R':
-                        square.occupying_piece = Rook(
-                            (x, y),
-                            True if piece[0] == 'w' else False,
-                            self
-                        )
-                    elif piece[1] == 'N':
-                        square.occupying_piece = Knight(
-                            (x, y),
-                            True if piece[0] == 'w' else False,
-                            self
-                        )
-                    elif piece[1] == 'B':
-                        square.occupying_piece = Bishop(
-                            (x, y),
-                            True if piece[0] == 'w' else False,
-                            self
-                        )
-                    elif piece[1] == 'Q':
-                        square.occupying_piece = Queen(
-                            (x, y),
-                            True if piece[0] == 'w' else False,
-                            self
-                        )
-                    elif piece[1] == 'K':
-                        square.occupying_piece = King(
-                            (x, y),
-                            True if piece[0] == 'w' else False,
-                            self
-                        )
-                    elif piece[1] == 'P':
-                        square.occupying_piece = Pawn(
-                            (x, y),
-                            True if piece[0] == 'w' else False,
-                            self
-                        )
+
+                    match piece[1]:
+                        case 'R':
+                            square.occupying_piece = Rook((x, y), True if piece[0] == 'w' else False, self)
+                        case 'N':
+                            square.occupying_piece = Knight((x, y), True if piece[0] == 'w' else False, self)
+                        case 'B':
+                            square.occupying_piece = Bishop((x, y), True if piece[0] == 'w' else False, self)
+                        case 'Q':
+                            square.occupying_piece = Queen((x, y), True if piece[0] == 'w' else False, self)
+                        case 'K':
+                            square.occupying_piece = King((x, y), True if piece[0] == 'w' else False, self)
+                        case 'P':
+                            square.occupying_piece = Pawn((x, y), True if piece[0] == 'w' else False, self)
+
+    def promote_pawn(self, square, display):
+        # Create a dialog in the center of the screen
+        dialog_width, dialog_height = 320, 250
+        dialog_x = (self.WIDTH - dialog_width) // 2
+        dialog_y = (self.HEIGHT - dialog_height) // 2
+        dialog_rect = pygame.Rect(dialog_x, dialog_y, dialog_width, dialog_height)
+
+        # Create font and text
+        font = pygame.font.Font(None, 36)
+        text = font.render("Pick a piece to promote to", True, (0, 0, 0))
+        text_rect = text.get_rect(center = (dialog_x + dialog_width // 2, dialog_y + 30))
+
+        # Create buttons for choices
+        button_width, button_height = 150, 30
+        buttons = {
+            "queen": pygame.Rect(dialog_x + 85, dialog_y + 70, button_width, button_height),
+            "rook": pygame.Rect(dialog_x + 85, dialog_y + 110, button_width, button_height),
+            "bishop": pygame.Rect(dialog_x + 85, dialog_y + 150, button_width, button_height),
+            "knight": pygame.Rect(dialog_x + 85, dialog_y + 190, button_width, button_height)
+        }
+
+        # Draw the dialog and buttons
+        running = True
+        choice = None
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = event.pos
+                    for key, button in buttons.items():
+                        if button.collidepoint(mouse_pos):
+                            choice = key
+                            running = False
+
+            # Draw dialog
+            pygame.draw.rect(display, (255, 255, 255), dialog_rect)
+            pygame.draw.rect(display, (0, 0, 0), dialog_rect, 2)
+            display.blit(text, text_rect)
+
+            # Draw buttons
+            for key, button in buttons.items():
+                pygame.draw.rect(display, (200, 200, 200), button)
+                pygame.draw.rect(display, (0, 0, 0), button, 2)
+                button_text = font.render(key.capitalize(), True, (0, 0, 0))
+                button_text_rect = button_text.get_rect(center = button.center)
+                display.blit(button_text, button_text_rect)
+
+            pygame.display.flip()
+
+        # Promote the pawn based on the choice
+        match choice:
+            case 'queen':
+                square.occupying_piece = Queen((square.x, square.y), square.occupying_piece.isWhite, self)
+            case 'rook':
+                square.occupying_piece = Rook((square.x, square.y), square.occupying_piece.isWhite, self)
+            case 'bishop':
+                square.occupying_piece = Bishop((square.x, square.y), square.occupying_piece.isWhite, self)
+            case 'knight':
+                square.occupying_piece = Knight((square.x, square.y), square.occupying_piece.isWhite, self)
