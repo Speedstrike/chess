@@ -10,7 +10,8 @@ class Pawn(Piece):
         else:
             self.img = pygame.image.load('imgs/b_pawn.png')
         self.img = pygame.transform.scale(self.img, (board.tile_width / 2, board.tile_height / 2))
-           
+        self.last_moved_two = False
+
     def get_available_moves(self, board):
         available_moves = []
         
@@ -39,6 +40,28 @@ class Pawn(Piece):
         for capture in available_captures:
             if self.can_capture(capture):
                 available_moves.append(capture)
-        
+
+        available_special_captures = []
+        if 3 <= current_y <= 4:
+            if board.white_turn:
+                if current_x > 0 and isinstance(board.get_square((current_x - 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x - 1, current_y)).occupying_piece.isWhite != self.isWhite:
+                    if board.get_square((current_x - 1, current_y)).occupying_piece.last_moved_two:
+                        available_special_captures.append(board.get_square((current_x - 1, current_y - 1)))
+
+                if current_x < 7 and isinstance(board.get_square((current_x + 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x + 1, current_y)).occupying_piece.isWhite != self.isWhite:
+                    if board.get_square((current_x + 1, current_y)).occupying_piece.last_moved_two:
+                        available_special_captures.append(board.get_square((current_x + 1, current_y - 1)))
+            else:
+                if current_x > 0 and isinstance(board.get_square((current_x - 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x - 1, current_y)).occupying_piece.isWhite != self.isWhite:
+                    if board.get_square((current_x - 1, current_y)).occupying_piece.last_moved_two:
+                        available_special_captures.append(board.get_square((current_x - 1, current_y + 1)))
+
+                if current_x < 7 and isinstance(board.get_square((current_x + 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x + 1, current_y)).occupying_piece.isWhite != self.isWhite:
+                    if board.get_square((current_x + 1, current_y)).occupying_piece.last_moved_two:
+                        available_special_captures.append(board.get_square((current_x + 1, current_y + 1)))
+
+        for capture in available_special_captures:
+            available_moves.append(capture)
+
         return available_moves
 

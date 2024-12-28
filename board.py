@@ -1,5 +1,4 @@
 import pygame
-from pygame import display
 
 from square import Square
 
@@ -108,7 +107,10 @@ class Board:
         for square in self.original_square.occupying_piece.get_available_moves(self):
             if selected_square == square:
                 if selected_square.occupying_piece is None:
-                    self.original_square.occupying_piece.move(selected_square)
+                    if isinstance(self.original_square.occupying_piece, Pawn) and self.original_square.x != selected_square.x and selected_square.occupying_piece is None:
+                        self.original_square.occupying_piece.move(selected_square, self, True, True)
+                    else:
+                        self.original_square.occupying_piece.move(selected_square, self, isinstance(self.original_square.occupying_piece, Pawn), False)
                     self.successful_move = True
 
                     if isinstance(self.original_square.occupying_piece, King) or isinstance(self.original_square.occupying_piece, Rook):
@@ -116,7 +118,7 @@ class Board:
                     if (isinstance(self.original_square.occupying_piece, Pawn) and self.original_square.occupying_piece.isWhite and selected_square.y == 0) or (isinstance(self.original_square.occupying_piece, Pawn) and (not self.original_square.occupying_piece.isWhite) and selected_square.y == 7):
                         self.promote_pawn(selected_square, screen)
                 elif selected_square.occupying_piece.color != self.original_square.occupying_piece.color:
-                    self.original_square.occupying_piece.capture(selected_square)
+                    self.original_square.occupying_piece.capture(selected_square, self)
                     self.successful_move = True
 
                     if isinstance(self.original_square.occupying_piece, King) or isinstance(self.original_square.occupying_piece, Rook):
