@@ -13,7 +13,7 @@ running = True
 while running:
     white_king_square = board.get_king_square('white')
     black_king_square = board.get_king_square('black')
-    if(white_king_square is None or black_king_square is None):
+    if white_king_square is None or black_king_square is None:
         pygame.quit()
         raise TimeoutError('Game cannot be played! In order to play Chess, both colors must have a king on the board!')
     
