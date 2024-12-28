@@ -15,8 +15,8 @@ class Square:
         a pygame rectangle that defines the square
     '''
     def __init__(self, x, y):
-        self.x = x;
-        self.y = y;
+        self.x = x
+        self.y = y
         self.pos = (x, y)
         self.abs_x = x * Square.WIDTH
         self.abs_y = y * Square.HEIGHT
@@ -31,12 +31,7 @@ class Square:
         self.highlight_color = (100, 249, 83) if self.color == 'light' else (0, 228, 10)
         self.select_color = (253, 255, 50)
         self.check_color = (255, 0, 0)
-        self.rect = pygame.Rect(
-            self.abs_x,
-            self.abs_y,
-            Square.WIDTH,
-            Square.HEIGHT
-        )
+        self.rect = pygame.Rect(self.abs_x, self.abs_y, Square.WIDTH, Square.HEIGHT)
     
     # Get coordinate of Square in Chess terms (Coordinate (0, 0) would be 'a1')
     def get_coord(self):
