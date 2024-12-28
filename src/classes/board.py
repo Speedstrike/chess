@@ -1,12 +1,25 @@
 import pygame
 
-from classes.square import Square
-from classes.pieces.bishop import Bishop
-from classes.pieces.king import King
-from classes.pieces.knight import Knight
-from classes.pieces.pawn import Pawn
-from classes.pieces.queen import Queen
-from classes.pieces.rook import Rook
+from src.classes.square import Square
+from src.classes.pieces.bishop import Bishop
+from src.classes.pieces.king import King
+from src.classes.pieces.knight import Knight
+from src.classes.pieces.pawn import Pawn
+from src.classes.pieces.queen import Queen
+from src.classes.pieces.rook import Rook
+
+
+def highlight_square(square):
+    square.isHighlighted = True
+
+
+def select_square(square):
+    square.isSelected = True
+
+
+def highlight_king(king_square, shouldHighlight):
+    king_square.isInCheck = shouldHighlight
+
 
 class Board:
     # Board has a width and height of 640 pixels
@@ -40,8 +53,8 @@ class Board:
                 if((square.x, square.y) == (pos[0], pos[1])):
                     return square
                 
-    def get_piece(self, pos):
-        return self.get_square(self, pos).occupying_piece
+    def get_piece(self):
+        return self.get_square(self).occupying_piece
     
     def get_pieces_on_board(self):
         pieces = []
@@ -57,16 +70,7 @@ class Board:
                 if isinstance(square.occupying_piece, King) and square.occupying_piece.isWhite == (color == 'white'):
                     return square
         return None
-                
-    def highlight_square(self, square):
-        square.isHighlighted = True
-        
-    def select_square(self, square):
-        square.isSelected = True
-        
-    def highlight_king(self, king_square, shouldHighlight):
-        king_square.isInCheck = shouldHighlight
-    
+
     def clear_highlights(self):
         for row in self.squares:
             for square in row:
@@ -96,10 +100,10 @@ class Board:
         self.clear_highlights()
         
         # highlight square and show available moves
-        if(not self.is_in_check(self.current_color)):
-            self.select_square(selected_square)
+        if not self.is_in_check(self.current_color):
+            select_square(selected_square)
         for square in selected_square.occupying_piece.get_available_moves(self):
-            self.highlight_square(square)
+            highlight_square(square)
                 
     # Handle second click (moving/capturing a piece)
     def handle_second_click(self, selected_square):
@@ -118,7 +122,7 @@ class Board:
                     self.current_color = 'white' if self.white_turn else 'black'
                     if(self.is_in_check(self.current_color)):
                         print(f'{self.current_color.capitalize()} king is in check!', )
-                        self.highlight_king(self.get_king_square(self.current_color), True)
+                        highlight_king(self.get_king_square(self.current_color), True)
                     self.successful_move = False
     
     def draw_board(self, display):
@@ -138,7 +142,7 @@ class Board:
         return False
     
     def is_in_check(self, color):
-        pieces_on_board = self.get_pieces_on_board()
+        self.get_pieces_on_board()
         king_square = self.get_king_square(color)
         if king_square is None:
             pygame.quit()
@@ -154,39 +158,39 @@ class Board:
     def setup_board(self):
         for y, row in enumerate(self.config):
             for x, piece in enumerate(row):
-                if(piece != ''):
+                if piece != '':
                     square = self.get_square((x, y))
-                    if(piece[1] == 'R'):
+                    if piece[1] == 'R':
                         square.occupying_piece = Rook(
                             (x, y), 
                             True if piece[0] == 'w' else False,
                             self
                         )
-                    elif(piece[1] == 'N'):
+                    elif piece[1] == 'N':
                         square.occupying_piece = Knight(
                             (x, y), 
                             True if piece[0] == 'w' else False,
                             self
                         )
-                    elif(piece[1] == 'B'):
+                    elif piece[1] == 'B':
                         square.occupying_piece = Bishop(
                             (x, y), 
                             True if piece[0] == 'w' else False,
                             self
                         )
-                    elif(piece[1] == 'Q'):
+                    elif piece[1] == 'Q':
                         square.occupying_piece = Queen(
                             (x, y), 
                             True if piece[0] == 'w' else False,
                             self
                         )
-                    elif(piece[1] == 'K'):
+                    elif piece[1] == 'K':
                         square.occupying_piece = King(
                             (x, y), 
                             True if piece[0] == 'w' else False,
                             self
                         )
-                    elif(piece[1] == 'P'):
+                    elif piece[1] == 'P':
                         square.occupying_piece = Pawn(
                             (x, y), 
                             True if piece[0] == 'w' else False,

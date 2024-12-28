@@ -1,6 +1,7 @@
-import pygame
+def can_move(new_square):
+    return new_square.occupying_piece is None
 
-class Piece():
+class Piece:
     def __init__(self, pos, isWhite, board):
         self.pos = pos
         self.x = pos[0]
@@ -20,11 +21,7 @@ class Piece():
     def capture(self, new_square):
         new_square.occupying_piece = None
         self.move(new_square)
-    
-    # Checks if the piece can move to a different square on the board
-    def can_move(self, new_square):
-        return new_square.occupying_piece == None
-    
+
     # Checks if the piece can capture a different piece on a different square
     def can_capture(self, new_square):
-        return new_square.occupying_piece != None and self.color != new_square.occupying_piece.color
+        return new_square.occupying_piece is not None and self.color != new_square.occupying_piece.color
