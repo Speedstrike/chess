@@ -27,7 +27,7 @@ class Square:
         self.isSelected = False
         self.isInCheck = False
         self.color = 'light' if (x + y) % 2 == 0 else 'dark'
-        self.draw_color = (220, 208, 194) if self.color == 'light' else (53, 53, 53)
+        self.draw_color = (255, 213, 153) if self.color == 'light' else (175, 108, 64)
         self.highlight_color = (100, 249, 83) if self.color == 'light' else (0, 228, 10)
         self.select_color = (253, 255, 50)
         self.check_color = (255, 0, 0)
