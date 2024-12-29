@@ -13,7 +13,8 @@ class Piece:
     
     def move(self, new_square, board, is_pawn = False, en_passant = False):
         if is_pawn:
-            self.last_moved_two = abs(new_square.y - self.y) == 2
+            self.last_moved_two = (abs(new_square.y - self.y) == 2)
+        board.set_pawn_movement(board.get_square((self.x, self.y)))
         self.x, self.y = new_square.pos
         new_square.occupying_piece = self
         if en_passant:
