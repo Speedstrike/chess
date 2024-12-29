@@ -67,6 +67,15 @@ class Board:
                     return square
         return None
 
+    def set_pawn_movement(self, ignore_square = None):
+        for row in self.squares:
+            for square in row:
+                if isinstance(square.occupying_piece, Pawn) and square.occupying_piece.isWhite is (self.white_turn is True):
+                    if ignore_square is not None and square == ignore_square:
+                        continue
+                    square.occupying_piece.last_moved_two = False
+        return None
+
     def clear_highlights(self):
         for row in self.squares:
             for square in row:
