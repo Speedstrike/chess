@@ -95,7 +95,7 @@ class Board:
             self.original_square = selected_square
             self.first_click_occurred = True
 
-        if self.first_click_occurred and (selected_square.occupying_piece is None or (self.original_square.occupying_piece.color != selected_square.occupying_piece.color)):
+        if self.first_click_occurred and (selected_square.occupying_piece is None or (self.original_square.occupying_piece.isWhite != selected_square.occupying_piece.isWhite)):
             self.handle_second_click(selected_square, screen)
             self.clear_highlights()
             self.first_click_occurred = False
@@ -126,7 +126,7 @@ class Board:
                         self.original_square.occupying_piece.has_moved = True
                     if (isinstance(self.original_square.occupying_piece, Pawn) and self.original_square.occupying_piece.isWhite and selected_square.y == 0) or (isinstance(self.original_square.occupying_piece, Pawn) and (not self.original_square.occupying_piece.isWhite) and selected_square.y == 7):
                         self.promote_pawn(selected_square, screen)
-                elif selected_square.occupying_piece.color != self.original_square.occupying_piece.color:
+                elif selected_square.occupying_piece.isWhite != self.original_square.occupying_piece.isWhite:
                     self.original_square.occupying_piece.capture(selected_square, self)
                     self.successful_move = True
 

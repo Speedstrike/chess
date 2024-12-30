@@ -4,8 +4,7 @@ class Piece:
         self.x = pos[0]
         self.y = pos[1]
         self.isWhite = isWhite
-        self.color = 'white' if self.isWhite else 'black'
-        
+
     # Gets the available moves for a piece.
     # MUST OVERRIDE BY CLASSES THAT EXTEND IT!
     def get_available_moves(self, board):
@@ -29,4 +28,4 @@ class Piece:
 
     # Checks if the piece can capture a different piece on a different square
     def can_capture(self, new_square):
-        return new_square.occupying_piece is not None and self.color != new_square.occupying_piece.color
+        return new_square.occupying_piece is not None and self.isWhite != new_square.occupying_piece.isWhite
