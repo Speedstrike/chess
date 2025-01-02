@@ -41,6 +41,7 @@ class Board:
             ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
             ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR'],
         ]
+        self.move_count = 0.0
         self.setup_board()
 
     def get_square(self, pos):
@@ -127,7 +128,7 @@ class Board:
                     if (isinstance(self.original_square.occupying_piece, Pawn) and self.original_square.occupying_piece.isWhite and selected_square.y == 0) or (isinstance(self.original_square.occupying_piece, Pawn) and (not self.original_square.occupying_piece.isWhite) and selected_square.y == 7):
                         self.promote_pawn(selected_square, screen)
                 elif selected_square.occupying_piece.isWhite != self.original_square.occupying_piece.isWhite:
-                    self.original_square.occupying_piece.capture(selected_square, self)
+                    self.original_square.occupying_piece.move(selected_square, self, is_capture = True)
                     self.successful_move = True
 
                     if isinstance(self.original_square.occupying_piece, King) or isinstance(self.original_square.occupying_piece, Rook):

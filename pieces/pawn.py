@@ -10,58 +10,62 @@ class Pawn(Piece):
         else:
             self.img = pygame.image.load('imgs/b_pawn.png')
         self.img = pygame.transform.scale(self.img, (board.tile_width / 2, board.tile_height / 2))
+        self.available_moves = []
+        self.last_moves_check = 0.0
         self.last_moved_two = False
 
     def get_available_moves(self, board):
-        available_moves = []
-        
-        direction = -1 if self.isWhite else 1
-        current_x, current_y = self.x, self.y
-        
-        default_move = board.get_square((current_x, current_y + direction))
-        if 0 <= current_y + direction <= 7:
-            if self.can_move(default_move):
-                available_moves.append(default_move)
-                if current_y == 6 or current_y == 1:
-                    direction = direction - 1 if self.isWhite else direction + 1
-                    extra_move = board.get_square((current_x, current_y + direction))
-                    if 0 <= current_y + direction <= 7:
-                        if self.can_move(extra_move):
-                            available_moves.append(extra_move)
-        
-        temp_y = current_y - 1 if self.isWhite else current_y + 1
-        
-        available_captures = []
-        if 0 < current_x <= 7 and 0 <= temp_y <= 7:
-            available_captures.append(board.get_square((current_x - 1, temp_y)))
-        if 0 <= current_x < 7 and 0 <= temp_y <= 7:
-            available_captures.append(board.get_square((current_x + 1, temp_y)))
+        if self.last_moves_check != board.move_count or board.move_count == 0:
+            self.available_moves = []
+            direction = -1 if self.isWhite else 1
+            current_x, current_y = self.x, self.y
 
-        for capture in available_captures:
-            if self.can_capture(capture):
-                available_moves.append(capture)
+            default_move = board.get_square((current_x, current_y + direction))
+            if 0 <= current_y + direction <= 7:
+                if self.can_move(default_move):
+                    self.available_moves.append(default_move)
+                    if current_y == 6 or current_y == 1:
+                        direction = direction - 1 if self.isWhite else direction + 1
+                        extra_move = board.get_square((current_x, current_y + direction))
+                        if 0 <= current_y + direction <= 7:
+                            if self.can_move(extra_move):
+                                self.available_moves.append(extra_move)
 
-        available_special_captures = []
-        if 3 <= current_y <= 4:
-            if board.white_turn:
-                if current_x > 0 and isinstance(board.get_square((current_x - 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x - 1, current_y)).occupying_piece.isWhite != self.isWhite:
-                    if board.get_square((current_x - 1, current_y)).occupying_piece.last_moved_two:
-                        available_special_captures.append(board.get_square((current_x - 1, current_y - 1)))
+            temp_y = current_y - 1 if self.isWhite else current_y + 1
 
-                if current_x < 7 and isinstance(board.get_square((current_x + 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x + 1, current_y)).occupying_piece.isWhite != self.isWhite:
-                    if board.get_square((current_x + 1, current_y)).occupying_piece.last_moved_two:
-                        available_special_captures.append(board.get_square((current_x + 1, current_y - 1)))
-            else:
-                if current_x > 0 and isinstance(board.get_square((current_x - 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x - 1, current_y)).occupying_piece.isWhite != self.isWhite:
-                    if board.get_square((current_x - 1, current_y)).occupying_piece.last_moved_two:
-                        available_special_captures.append(board.get_square((current_x - 1, current_y + 1)))
+            available_captures = []
+            if 0 < current_x <= 7 and 0 <= temp_y <= 7:
+                available_captures.append(board.get_square((current_x - 1, temp_y)))
+            if 0 <= current_x < 7 and 0 <= temp_y <= 7:
+                available_captures.append(board.get_square((current_x + 1, temp_y)))
 
-                if current_x < 7 and isinstance(board.get_square((current_x + 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x + 1, current_y)).occupying_piece.isWhite != self.isWhite:
-                    if board.get_square((current_x + 1, current_y)).occupying_piece.last_moved_two:
-                        available_special_captures.append(board.get_square((current_x + 1, current_y + 1)))
+            for capture in available_captures:
+                if self.can_capture(capture):
+                    self.available_moves.append(capture)
 
-        for capture in available_special_captures:
-            available_moves.append(capture)
+            available_special_captures = []
+            if 3 <= current_y <= 4:
+                if board.white_turn:
+                    if current_x > 0 and isinstance(board.get_square((current_x - 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x - 1, current_y)).occupying_piece.isWhite != self.isWhite:
+                        if board.get_square((current_x - 1, current_y)).occupying_piece.last_moved_two:
+                            available_special_captures.append(board.get_square((current_x - 1, current_y - 1)))
 
-        return available_moves
+                    if current_x < 7 and isinstance(board.get_square((current_x + 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x + 1, current_y)).occupying_piece.isWhite != self.isWhite:
+                        if board.get_square((current_x + 1, current_y)).occupying_piece.last_moved_two:
+                            available_special_captures.append(board.get_square((current_x + 1, current_y - 1)))
+                else:
+                    if current_x > 0 and isinstance(board.get_square((current_x - 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x - 1, current_y)).occupying_piece.isWhite != self.isWhite:
+                        if board.get_square((current_x - 1, current_y)).occupying_piece.last_moved_two:
+                            available_special_captures.append(board.get_square((current_x - 1, current_y + 1)))
+
+                    if current_x < 7 and isinstance(board.get_square((current_x + 1, current_y)).occupying_piece, Pawn) and board.get_square((current_x + 1, current_y)).occupying_piece.isWhite != self.isWhite:
+                        if board.get_square((current_x + 1, current_y)).occupying_piece.last_moved_two:
+                            available_special_captures.append(board.get_square((current_x + 1, current_y + 1)))
+
+            for capture in available_special_captures:
+                self.available_moves.append(capture)
+
+            self.last_moves_check = board.move_count
+
+        return self.available_moves
 

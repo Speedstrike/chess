@@ -10,46 +10,51 @@ class Rook(Piece):
         else:
             self.img = pygame.image.load('imgs/b_rook.png')
         self.img = pygame.transform.scale(self.img, (board.tile_width / 2, board.tile_height / 2))
+        self.available_moves = []
+        self.last_moves_check = 0.0
         self.has_moved = False
         
     def get_available_moves(self, board):
-        available_moves = []
-        current_x, current_y = self.x, self.y
-        
-        # Up
-        for n in range(1, 8):
-            if current_y - n > -1:
-                up_column = board.get_square((current_x, current_y - n))
-                if up_column.occupying_piece is not None:
-                    if up_column.occupying_piece.isWhite != self.isWhite: available_moves.append(up_column)
-                    break
-                else: available_moves.append(up_column)
+        if self.last_moves_check != board.move_count or board.move_count == 0:
+            self.available_moves = []
+            current_x, current_y = self.x, self.y
+
+            # Up
+            for n in range(1, 8):
+                if current_y - n > -1:
+                    up_column = board.get_square((current_x, current_y - n))
+                    if up_column.occupying_piece is not None:
+                        if up_column.occupying_piece.isWhite != self.isWhite: self.available_moves.append(up_column)
+                        break
+                    else: self.available_moves.append(up_column)
+
+            # Down
+            for n in range(1, 8):
+                if current_y + n < 8:
+                    down_column = board.get_square((current_x, current_y + n))
+                    if down_column.occupying_piece is not None:
+                        if down_column.occupying_piece.isWhite != self.isWhite: self.available_moves.append(down_column)
+                        break
+                    else: self.available_moves.append(down_column)
+
+            # Left
+            for n in range(1, 8):
+                if current_x - n > -1:
+                    left_row = board.get_square((current_x - n, current_y))
+                    if left_row.occupying_piece is not None:
+                        if left_row.occupying_piece.isWhite != self.isWhite: self.available_moves.append(left_row)
+                        break
+                    else: self.available_moves.append(left_row)
+
+            # Right
+            for n in range(1, 8):
+                if current_x + n < 8:
+                    right_row = board.get_square((current_x + n, current_y))
+                    if right_row.occupying_piece is not None:
+                        if right_row.occupying_piece.isWhite != self.isWhite: self.available_moves.append(right_row)
+                        break
+                    else: self.available_moves.append(right_row)
+
+            self.last_moves_check = board.move_count
                 
-        # Down
-        for n in range(1, 8):
-            if current_y + n < 8:
-                down_column = board.get_square((current_x, current_y + n))
-                if down_column.occupying_piece is not None:
-                    if down_column.occupying_piece.isWhite != self.isWhite: available_moves.append(down_column)
-                    break
-                else: available_moves.append(down_column)
-        
-        # Left
-        for n in range(1, 8):
-            if current_x - n > -1:
-                left_row = board.get_square((current_x - n, current_y))
-                if left_row.occupying_piece is not None:
-                    if left_row.occupying_piece.isWhite != self.isWhite: available_moves.append(left_row)
-                    break
-                else: available_moves.append(left_row)
-                
-        # Right
-        for n in range(1, 8):
-            if current_x + n < 8:
-                right_row = board.get_square((current_x + n, current_y))
-                if right_row.occupying_piece is not None:
-                    if right_row.occupying_piece.isWhite != self.isWhite: available_moves.append(right_row)
-                    break
-                else: available_moves.append(right_row)
-                
-        return available_moves
+        return self.available_moves

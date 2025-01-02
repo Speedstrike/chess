@@ -10,45 +10,50 @@ class Bishop(Piece):
         else:
             self.img = pygame.image.load('imgs/b_bishop.png')
         self.img = pygame.transform.scale(self.img, (board.tile_width / 2, board.tile_height / 2))
+        self.available_moves = []
+        self.last_moves_check = 0.0
         
     def get_available_moves(self, board):
-        available_moves = []
-        current_x, current_y = self.x, self.y
-        
-        # Top right diagonal
-        for n in range(1, 8):
-            if current_x + n < 8 and current_y - n > -1:
-                topright_diagonal = board.get_square((current_x + n, current_y - n))
-                if topright_diagonal.occupying_piece is not None:
-                    if topright_diagonal.occupying_piece.isWhite != self.isWhite: available_moves.append(topright_diagonal)
-                    break
-                else: available_moves.append(topright_diagonal)
+        if self.last_moves_check != board.move_count or board.move_count == 0:
+            self.available_moves = []
+            current_x, current_y = self.x, self.y
+
+            # Top right diagonal
+            for n in range(1, 8):
+                if current_x + n < 8 and current_y - n > -1:
+                    topright_diagonal = board.get_square((current_x + n, current_y - n))
+                    if topright_diagonal.occupying_piece is not None:
+                        if topright_diagonal.occupying_piece.isWhite != self.isWhite: self.available_moves.append(topright_diagonal)
+                        break
+                    else: self.available_moves.append(topright_diagonal)
+
+            # Bottom right diagonal
+            for n in range(1, 8):
+                if current_x + n < 8 and current_y + n < 8:
+                    bottomright_diagonal = board.get_square((current_x + n, current_y + n))
+                    if bottomright_diagonal.occupying_piece is not None:
+                        if bottomright_diagonal.occupying_piece.isWhite != self.isWhite: self.available_moves.append(bottomright_diagonal)
+                        break
+                    else: self.available_moves.append(bottomright_diagonal)
+
+            # Bottom left diagonal
+            for n in range(1, 8):
+                if current_x - n > -1 and current_y + n < 8:
+                    bottomleft_diagonal = board.get_square((current_x - n, current_y + n))
+                    if bottomleft_diagonal.occupying_piece is not None:
+                        if bottomleft_diagonal.occupying_piece.isWhite != self.isWhite: self.available_moves.append(bottomleft_diagonal)
+                        break
+                    else: self.available_moves.append(bottomleft_diagonal)
+
+            # Top left diagonal
+            for n in range(1, 8):
+                if current_x - n > -1 and current_y - n > -1:
+                    topleft_diagonal = board.get_square((current_x - n, current_y - n))
+                    if topleft_diagonal.occupying_piece is not None:
+                        if topleft_diagonal.occupying_piece.isWhite != self.isWhite: self.available_moves.append(topleft_diagonal)
+                        break
+                    else: self.available_moves.append(topleft_diagonal)
+
+            self.last_moves_check = board.move_count
                 
-        # Bottom right diagonal
-        for n in range(1, 8):
-            if current_x + n < 8 and current_y + n < 8:
-                bottomright_diagonal = board.get_square((current_x + n, current_y + n))
-                if bottomright_diagonal.occupying_piece is not None:
-                    if bottomright_diagonal.occupying_piece.isWhite != self.isWhite: available_moves.append(bottomright_diagonal)
-                    break
-                else: available_moves.append(bottomright_diagonal)
-        
-        # Bottom left diagonal
-        for n in range(1, 8):
-            if current_x - n > -1 and current_y + n < 8:
-                bottomleft_diagonal = board.get_square((current_x - n, current_y + n))
-                if bottomleft_diagonal.occupying_piece is not None:
-                    if bottomleft_diagonal.occupying_piece.isWhite != self.isWhite: available_moves.append(bottomleft_diagonal)
-                    break
-                else: available_moves.append(bottomleft_diagonal)
-                
-        # Top left diagonal
-        for n in range(1, 8):
-            if current_x - n > -1 and current_y - n > -1:
-                topleft_diagonal = board.get_square((current_x - n, current_y - n))
-                if topleft_diagonal.occupying_piece is not None:
-                    if topleft_diagonal.occupying_piece.isWhite != self.isWhite: available_moves.append(topleft_diagonal)
-                    break
-                else: available_moves.append(topleft_diagonal)
-                
-        return available_moves
+        return self.available_moves
