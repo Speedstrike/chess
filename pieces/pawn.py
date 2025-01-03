@@ -14,8 +14,8 @@ class Pawn(Piece):
         self.last_moves_check = 0.0
         self.last_moved_two = False
 
-    def get_available_moves(self, board):
-        if self.last_moves_check != board.move_count or board.move_count == 0:
+    def get_available_moves(self, board, check_square = None):
+        if self.last_moves_check != board.move_count or board.move_count == 0 or check_square is not None:
             self.available_moves = []
             direction = -1 if self.isWhite else 1
             current_x, current_y = self.x, self.y
@@ -40,7 +40,7 @@ class Pawn(Piece):
                 available_captures.append(board.get_square((current_x + 1, temp_y)))
 
             for capture in available_captures:
-                if self.can_capture(capture):
+                if (self.can_capture(capture)) or (check_square is not None and capture.x == check_square.x and capture.y == check_square.y):
                     self.available_moves.append(capture)
 
             available_special_captures = []

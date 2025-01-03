@@ -90,8 +90,8 @@ class Board:
         selected_square = self.get_square((x, y))
         if(((self.is_in_check(self.white_turn) and isinstance(selected_square.occupying_piece, King))
             or (not self.is_in_check(self.white_turn) and selected_square.occupying_piece is not None))
-            and ((self.white_turn and selected_square.occupying_piece.isWhite)
-            or (not self.white_turn and not selected_square.occupying_piece.isWhite))):
+                and ((self.white_turn and selected_square.occupying_piece.isWhite)
+                     or (not self.white_turn and not selected_square.occupying_piece.isWhite))):
             self.handle_first_click(selected_square)
             self.original_square = selected_square
             self.first_click_occurred = True
@@ -155,18 +155,20 @@ class Board:
             pygame.quit()
             raise TimeoutError('Game cannot be played! In order to play Chess, both colors must have a king on the board!')
 
-        if new_square is not None and hasattr(new_square, 'occupying_piece'):
-            piece = new_square.occupying_piece
-            if piece is not None:
-                available_moves = piece.get_available_moves(self)
-                for move in available_moves:
-                    if move.occupying_piece is not None and move.occupying_piece.can_capture(king_square):
+        for piece in self.get_pieces_on_board():
+            if piece.isWhite != color:
+                if not isinstance(piece, King):
+                    if new_square is None:
+                        if king_square in piece.get_available_moves(self):
+                            return True
+                    else:
+                        if new_square in piece.get_available_moves(self, new_square):
+                            return True
+                elif new_square is None:
+                    if piece.is_valid_move(king_square):
                         return True
-        else:
-            for piece in self.get_pieces_on_board():
-                if piece.isWhite != color:
-                    available_moves = piece.get_available_moves(self)
-                    if king_square in available_moves:
+                else:
+                    if piece.is_valid_move(new_square):
                         return True
         return False
 

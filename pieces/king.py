@@ -13,9 +13,9 @@ class King(Piece):
         self.available_moves = []
         self.last_moves_check = 0.0
         self.has_moved = False
-        
-    def get_available_moves(self, board):
-        if self.last_moves_check != board.move_count or board.move_count == 0:
+
+    def get_available_moves(self, board, check_square = None):
+        if self.last_moves_check != board.move_count or board.move_count == 0 or check_square is not None:
             self.available_moves = []
             for i in range(-1, 2):
                 for j in range(-1, 2):
@@ -23,9 +23,18 @@ class King(Piece):
                         continue
                     if 0 <= self.x + i <= 7 and 0 <= self.y + j <= 7:
                         square = board.get_square((self.x + i, self.y + j))
-                        if (square.occupying_piece is None or square.occupying_piece.isWhite != self.isWhite) and not board.is_in_check(board.white_turn, square):
+                        if check_square is not None and square.x == check_square.x and square.y == check_square.y:
+                            self.available_moves.append(square)
+                        if (square.occupying_piece is None or square.occupying_piece.isWhite != self.isWhite) and (not board.is_in_check(board.white_turn, square)):
                             self.available_moves.append(square)
 
             self.last_moves_check = board.move_count
-                
+
         return self.available_moves
+
+    def is_valid_move(self, new_square):
+        delta_x = new_square.x - self.x
+        delta_y = new_square.y - self.y
+        if abs(delta_x) <= 1 and abs(delta_y) <= 1:
+            return True
+        return False
