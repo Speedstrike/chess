@@ -14,7 +14,7 @@ class King(Piece):
         self.last_moves_check = 0.0
         self.has_moved = False
 
-    def get_available_moves(self, board, check_square = None):
+    def get_available_moves(self, board, is_in_check, check_square = None):
         if self.last_moves_check != board.move_count or board.move_count == 0 or check_square is not None:
             self.available_moves = []
             for i in range(-1, 2):

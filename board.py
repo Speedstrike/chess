@@ -42,6 +42,9 @@ class Board:
             ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR'],
         ]
         self.move_count = 0.0
+        self.checking_piece = None
+        self.in_check = False
+        self.last_check = 0.0
         self.setup_board()
 
     def get_square(self, pos):
@@ -88,10 +91,7 @@ class Board:
     def handle_click(self, mx, my, screen):
         x, y = mx // self.tile_width, my // self.tile_height
         selected_square = self.get_square((x, y))
-        if(((self.is_in_check(self.white_turn) and isinstance(selected_square.occupying_piece, King))
-            or (not self.is_in_check(self.white_turn) and selected_square.occupying_piece is not None))
-                and ((self.white_turn and selected_square.occupying_piece.isWhite)
-                     or (not self.white_turn and not selected_square.occupying_piece.isWhite))):
+        if selected_square.occupying_piece is not None and self.white_turn is selected_square.occupying_piece.isWhite:
             self.handle_first_click(selected_square)
             self.original_square = selected_square
             self.first_click_occurred = True
@@ -104,17 +104,16 @@ class Board:
     # Handle first click (select a piece of one's color)
     def handle_first_click(self, selected_square):
         self.clear_highlights()
+
+        select_square(selected_square)
         self.original_square = selected_square
 
-        # highlight square and show available moves
-        if not self.is_in_check(self.white_turn):
-            select_square(selected_square)
-        for square in selected_square.occupying_piece.get_available_moves(self):
+        for square in selected_square.occupying_piece.get_available_moves(self, self.is_in_check(self.white_turn)):
             highlight_square(square)
 
     # Handle second click (moving/capturing a piece)
     def handle_second_click(self, selected_square, screen):
-        for square in self.original_square.occupying_piece.get_available_moves(self):
+        for square in self.original_square.occupying_piece.get_available_moves(self, self.is_in_check(self.white_turn)):
             if selected_square == square:
                 if selected_square.occupying_piece is None:
                     if isinstance(self.original_square.occupying_piece, Pawn) and self.original_square.x != selected_square.x and selected_square.occupying_piece is None:
@@ -150,27 +149,42 @@ class Board:
                 square.draw(display)
 
     def is_in_check(self, color, new_square = None):
-        king_square = self.get_king_square(color)
-        if king_square is None:
-            pygame.quit()
-            raise TimeoutError('Game cannot be played! In order to play Chess, both colors must have a king on the board!')
+        if self.last_check != self.move_count or new_square is not None:
+            king_square = self.get_king_square(color)
+            if king_square is None:
+                pygame.quit()
+                raise TimeoutError('Game cannot be played! In order to play Chess, both colors must have a king on the board!')
 
-        for piece in self.get_pieces_on_board():
-            if piece.isWhite != color:
-                if not isinstance(piece, King):
-                    if new_square is None:
-                        if king_square in piece.get_available_moves(self):
+            for piece in self.get_pieces_on_board():
+                if piece.isWhite != color:
+                    if not isinstance(piece, King):
+                        if new_square is None:
+                            if king_square in piece.get_available_moves(self, False):
+                                self.checking_piece = self.get_square((piece.x, piece.y))
+                                self.in_check = True
+                                self.last_check = self.move_count
+                                return True
+                        else:
+                            if new_square in piece.get_available_moves(self, False, new_square):
+                                self.in_check = True
+                                self.last_check = self.move_count
+                                return True
+                    elif new_square is None:
+                        if piece.is_valid_move(king_square):
+                            self.in_check = True
+                            self.last_check = self.move_count
                             return True
                     else:
-                        if new_square in piece.get_available_moves(self, new_square):
+                        if piece.is_valid_move(new_square):
+                            self.in_check = True
+                            self.last_check = self.move_count
                             return True
-                elif new_square is None:
-                    if piece.is_valid_move(king_square):
-                        return True
-                else:
-                    if piece.is_valid_move(new_square):
-                        return True
-        return False
+
+            self.in_check = False
+            self.last_check = self.move_count
+            return False
+        else:
+            return self.in_check
 
     def setup_board(self):
         for y, row in enumerate(self.config):

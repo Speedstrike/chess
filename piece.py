@@ -9,7 +9,7 @@ class Piece:
 
     # Gets the available moves for a piece.
     # MUST OVERRIDE BY CLASSES THAT EXTEND IT!
-    def get_available_moves(self, board):
+    def get_available_moves(self, board, is_in_check):
         pass
     
     def move(self, new_square, board, is_pawn = False, en_passant = False, is_capture = False):
@@ -23,6 +23,7 @@ class Piece:
         if en_passant:
             board.get_square((new_square.x, new_square.y + 1 if board.white_turn else new_square.y - 1)).occupying_piece = None
         board.move_count += 0.5
+        board.checking_piece = None
 
     def can_move(self, new_square):
         return new_square.occupying_piece is None
