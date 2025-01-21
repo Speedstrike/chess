@@ -13,7 +13,7 @@ class Queen(Piece):
         self.available_moves = []
         self.last_moves_check = 0.0
 
-    def get_available_moves(self, board, check_square = None):
+    def get_available_moves(self, board, is_in_check, check_square = None):
         if self.last_moves_check != board.move_count or board.move_count == 0 or check_square is not None:
             self.available_moves = []
             current_x, current_y = self.x, self.y
@@ -25,9 +25,12 @@ class Queen(Piece):
                     if check_square is not None and up_column.x == check_square.x and up_column.y == check_square.y:
                         self.available_moves.append(up_column)
                     if up_column.occupying_piece is not None:
-                        if up_column.occupying_piece.isWhite != self.isWhite: self.available_moves.append(up_column)
+                        if up_column.occupying_piece.isWhite != self.isWhite:
+                            self.available_moves.append(up_column)
+                        if board.checking_piece is not None and board.checking_piece.x == up_column.x and board.checking_piece.y == up_column.y:
+                            self.available_moves.append(up_column)
                         break
-                    else:
+                    elif not is_in_check:
                         self.available_moves.append(up_column)
 
             # Down
@@ -37,9 +40,12 @@ class Queen(Piece):
                     if check_square is not None and down_column.x == check_square.x and down_column.y == check_square.y:
                         self.available_moves.append(down_column)
                     if down_column.occupying_piece != None:
-                        if down_column.occupying_piece.isWhite != self.isWhite: self.available_moves.append(down_column)
+                        if down_column.occupying_piece.isWhite != self.isWhite:
+                            self.available_moves.append(down_column)
+                        if board.checking_piece is not None and board.checking_piece.x == down_column.x and board.checking_piece.y == down_column.y:
+                            self.available_moves.append(down_column)
                         break
-                    else:
+                    elif not is_in_check:
                         self.available_moves.append(down_column)
 
             # Left
@@ -49,9 +55,12 @@ class Queen(Piece):
                     if check_square is not None and left_row.x == check_square.x and left_row.y == check_square.y:
                         self.available_moves.append(left_row)
                     if left_row.occupying_piece is not None:
-                        if left_row.occupying_piece.isWhite != self.isWhite: self.available_moves.append(left_row)
+                        if left_row.occupying_piece.isWhite != self.isWhite:
+                            self.available_moves.append(left_row)
+                        if board.checking_piece is not None and board.checking_piece.x == left_row.x and board.checking_piece.y == left_row.y:
+                            self.available_moves.append(left_row)
                         break
-                    else:
+                    elif not is_in_check:
                         self.available_moves.append(left_row)
 
             # Right
@@ -61,9 +70,12 @@ class Queen(Piece):
                     if check_square is not None and right_row.x == check_square.x and right_row.y == check_square.y:
                         self.available_moves.append(right_row)
                     if right_row.occupying_piece is not None:
-                        if right_row.occupying_piece.isWhite != self.isWhite: self.available_moves.append(right_row)
+                        if right_row.occupying_piece.isWhite != self.isWhite:
+                            self.available_moves.append(right_row)
+                        if board.checking_piece is not None and board.checking_piece.x == right_row.x and board.checking_piece.y == right_row.y:
+                            self.available_moves.append(right_row)
                         break
-                    else:
+                    elif not is_in_check:
                         self.available_moves.append(right_row)
 
             # Top right diagonal
@@ -73,9 +85,12 @@ class Queen(Piece):
                     if check_square is not None and topright_diagonal.x == check_square.x and topright_diagonal.y == check_square.y:
                         self.available_moves.append(topright_diagonal)
                     if topright_diagonal.occupying_piece is not None:
-                        if topright_diagonal.occupying_piece.isWhite != self.isWhite: self.available_moves.append(topright_diagonal)
+                        if topright_diagonal.occupying_piece.isWhite != self.isWhite:
+                            self.available_moves.append(topright_diagonal)
+                        if board.checking_piece is not None and board.checking_piece.x == topright_diagonal.x and board.checking_piece.y == topright_diagonal.y:
+                            self.available_moves.append(topright_diagonal)
                         break
-                    else:
+                    elif not is_in_check:
                         self.available_moves.append(topright_diagonal)
 
             # Bottom right diagonal
@@ -85,9 +100,12 @@ class Queen(Piece):
                     if check_square is not None and bottomright_diagonal.x == check_square.x and bottomright_diagonal.y == check_square.y:
                         self.available_moves.append(bottomright_diagonal)
                     if bottomright_diagonal.occupying_piece is not None:
-                        if bottomright_diagonal.occupying_piece.isWhite != self.isWhite: self.available_moves.append(bottomright_diagonal)
+                        if bottomright_diagonal.occupying_piece.isWhite != self.isWhite:
+                            self.available_moves.append(bottomright_diagonal)
+                        if board.checking_piece is not None and board.checking_piece.x == bottomright_diagonal.x and board.checking_piece.y == bottomright_diagonal.y:
+                            self.available_moves.append(bottomright_diagonal)
                         break
-                    else:
+                    elif not is_in_check:
                         self.available_moves.append(bottomright_diagonal)
 
             # Bottom left diagonal
@@ -97,9 +115,12 @@ class Queen(Piece):
                     if check_square is not None and bottomleft_diagonal.x == check_square.x and bottomleft_diagonal.y == check_square.y:
                         self.available_moves.append(bottomleft_diagonal)
                     if bottomleft_diagonal.occupying_piece is not None:
-                        if bottomleft_diagonal.occupying_piece.isWhite != self.isWhite: self.available_moves.append(bottomleft_diagonal)
+                        if bottomleft_diagonal.occupying_piece.isWhite != self.isWhite:
+                            self.available_moves.append(bottomleft_diagonal)
+                        if board.checking_piece is not None and board.checking_piece.x == bottomleft_diagonal.x and board.checking_piece.y == bottomleft_diagonal.y:
+                            self.available_moves.append(bottomleft_diagonal)
                         break
-                    else:
+                    elif not is_in_check:
                         self.available_moves.append(bottomleft_diagonal)
 
             # Top left diagonal
@@ -109,9 +130,12 @@ class Queen(Piece):
                     if check_square is not None and topleft_diagonal.x == check_square.x and topleft_diagonal.y == check_square.y:
                         self.available_moves.append(topleft_diagonal)
                     if topleft_diagonal.occupying_piece is not None:
-                        if topleft_diagonal.occupying_piece.isWhite != self.isWhite: self.available_moves.append(topleft_diagonal)
+                        if topleft_diagonal.occupying_piece.isWhite != self.isWhite:
+                            self.available_moves.append(topleft_diagonal)
+                        if board.checking_piece is not None and board.checking_piece.x == topleft_diagonal.x and board.checking_piece.y == topleft_diagonal.y:
+                            self.available_moves.append(topleft_diagonal)
                         break
-                    else:
+                    elif not is_in_check:
                         self.available_moves.append(topleft_diagonal)
 
             self.last_moves_check = board.move_count
